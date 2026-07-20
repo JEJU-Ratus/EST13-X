@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { Box, Typography, TextField, Button, Divider } from "@mui/material";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { authService } from "../firebase";
 
 const auth = authService;
@@ -38,6 +38,17 @@ function Auth() {
         });
     } else {
       // 로그인
+      signInWithEmailAndPassword(auth, form.email, form.password)
+        .then(userCredential => {
+          // Signed in
+          const user = userCredential.user;
+          // ...
+        })
+        .catch(error => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+        });
     }
   };
   return (
@@ -66,6 +77,17 @@ function Auth() {
         />
         <Button variant="contained" type="submit" sx={{ mt: 2 }}>
           {newAccount ? "회원가입" : "로그인"}
+        </Button>
+        <Divider sx={{ my: 3 }} />
+        <Button
+          variant="contained"
+          type="button"
+          sx={{ mt: 2 }}
+          onClick={() => {
+            setNewAccount(prev => !prev);
+          }}
+        >
+          {newAccount ? "로그인으로 전환" : "회원가입으로 전환"}
         </Button>
       </Box>
     </>
