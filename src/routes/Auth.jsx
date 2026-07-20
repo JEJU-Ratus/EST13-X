@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Box, Typography, TextField, Button, Divider } from "@mui/material";
+import { useState, useRef } from "react";
+import { Box, Typography, TextField, Button, Divider, Snackbar } from "@mui/material";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -8,14 +8,19 @@ import {
 } from "firebase/auth";
 import { authService } from "../firebase";
 
-const auth = authService;
-const provider = new GoogleAuthProvider();
 function Auth() {
   const [newAccount, setNewAccount] = useState(true);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [errorOpen, setErrorOpen] = useState(false);
+
+  const emailRef = useRef(null);
+  const auth = authService;
+  const provider = new GoogleAuthProvider();
+
   // 아이디 비밀번호 값 저장
   const handleChange = e => {
     const { name, value } = e.target;
@@ -39,6 +44,14 @@ function Auth() {
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log(errorCode, errorMessage);
+          setError(
+            errorMessage.includes("email-already-in-use")
+              ? "이미 이메일이 사용중입니다."
+              : errorMessage,
+          );
+          setErrorOpen(true);
+          setForm({ email: "", password: "" });
+          emailRef.current.focus();
           // ..
         });
     } else {
@@ -53,6 +66,10 @@ function Auth() {
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log(errorCode, errorMessage);
+          setError(errorMessage);
+          setErrorOpen(true);
+          setForm({ email: "", password: "" });
+          emailRef.current.focus();
         });
     }
   };
@@ -90,6 +107,8 @@ function Auth() {
           name="email"
           variant="outlined"
           onChange={handleChange}
+          inputRef={emailRef}
+          value={form.email}
         />
         <TextField
           sx={{ mt: 2 }}
@@ -99,10 +118,17 @@ function Auth() {
           name="password"
           variant="outlined"
           onChange={handleChange}
+          value={form.value}
         />
         <Button variant="contained" type="submit" sx={{ mt: 2 }}>
           {newAccount ? "회원가입" : "로그인"}
         </Button>
+        <Snackbar
+          open={errorOpen}
+          autoHideDuration={3000}
+          message={error}
+          onClose={() => setErrorOpen(true)}
+        />
         <Divider sx={{ my: 3 }} />
         <Button variant="contained" type="button" sx={{ mt: 2 }} onClick={onGoogleSingIn}>
           {newAccount ? "구글로 회원가입" : "구글로 로그인"}
