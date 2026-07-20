@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Box, Typography, TextField, Button, Divider } from "@mui/material";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { authService } from "../firebase";
 
 const auth = authService;
-
+const provider = new GoogleAuthProvider();
 function Auth() {
   const [newAccount, setNewAccount] = useState(true);
   const [form, setForm] = useState({
@@ -51,6 +56,26 @@ function Auth() {
         });
     }
   };
+
+  // google auth
+  const onGoogleSingIn = () => {
+    signInWithPopup(auth, provider)
+      .then(result => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        const user = result.user;
+      })
+      .catch(error => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        const email = error.customData.email;
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        console.log(errorCode, errorMessage, email, credential);
+        // ...
+      });
+  };
   return (
     <>
       <Typography variant="h2" component="h2">
@@ -77,6 +102,10 @@ function Auth() {
         />
         <Button variant="contained" type="submit" sx={{ mt: 2 }}>
           {newAccount ? "회원가입" : "로그인"}
+        </Button>
+        <Divider sx={{ my: 3 }} />
+        <Button variant="contained" type="button" sx={{ mt: 2 }} onClick={onGoogleSingIn}>
+          {newAccount ? "구글로 회원가입" : "구글로 로그인"}
         </Button>
         <Divider sx={{ my: 3 }} />
         <Button
