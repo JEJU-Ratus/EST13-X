@@ -1,7 +1,73 @@
+import { useState } from "react";
+import { Box, Typography, TextField, Button } from "@mui/material";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { authService } from "../firebase";
+
+const auth = authService;
+
 function Auth() {
+  const [newAccount, setNewAccount] = useState(true);
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+  // 아이디 비밀번호 값 저장
+  const handleChange = e => {
+    const { name, value } = e.target;
+    return setForm(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const onSubmit = e => {
+    e.preventDefault();
+    if (newAccount) {
+      // 회원가입
+      createUserWithEmailAndPassword(auth, form.email, form.password)
+        .then(userCredential => {
+          // Signed up
+          const user = userCredential.user;
+          // ...
+        })
+        .catch(error => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+          // ..
+        });
+    } else {
+      // 로그인
+    }
+  };
   return (
     <>
-      <h1>Auth</h1>
+      <Typography variant="h2" component="h2">
+        {newAccount ? "회원가입 폼" : "로그인 폼"}
+      </Typography>
+
+      <Box component="form" sx={{ mt: 2 }} onSubmit={onSubmit}>
+        <TextField
+          fullWidth
+          label="Email address"
+          type="text"
+          name="email"
+          variant="outlined"
+          onChange={handleChange}
+        />
+        <TextField
+          sx={{ mt: 2 }}
+          fullWidth
+          label="Password"
+          type="password"
+          name="password"
+          variant="outlined"
+          onChange={handleChange}
+        />
+        <Button variant="contained" type="submit" sx={{ mt: 2 }}>
+          {newAccount ? "회원가입" : "로그인"}
+        </Button>
+      </Box>
     </>
   );
 }
