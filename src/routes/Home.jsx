@@ -1,27 +1,18 @@
-import {
-  TextField,
-  Box,
-  Typography,
-  Button,
-  Divider,
-  ListItem,
-  List,
-  ListItemText,
-} from "@mui/material";
+import { TextField, Box, Typography, Button, Divider, List } from "@mui/material";
 import {
   collection,
   addDoc,
   serverTimestamp,
   query,
-  getDocs,
   orderBy,
   limit,
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useEffect, useState } from "react";
+import Comment from "../components/Comment";
 
-function Home() {
+function Home({ userId }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
 
@@ -52,6 +43,7 @@ function Home() {
       const docRef = await addDoc(collection(db, "comments"), {
         comment,
         date: serverTimestamp(),
+        uid: userId,
       });
       console.log("다음 글이 추가되었습니다.: ", docRef.id);
       setComment("");
@@ -84,16 +76,9 @@ function Home() {
       </Box>
       <Divider sx={{ my: 3 }} />
 
-      <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+      <List sx={{ width: "100%" }}>
         {comments.map(item => (
-          <ListItem alignItems="flex-start" key={item.id} divider>
-            <ListItemText
-              primary={item.comment} // 제목
-              secondary={
-                item.date?.toDate() ? item.date.toDate().toLocaleString() : "작성시간 없음"
-              } // 출력할 내용
-            />
-          </ListItem>
+          <Comment item={item} key={item.id} isShown={userId === item.uid} />
         ))}
       </List>
     </>
