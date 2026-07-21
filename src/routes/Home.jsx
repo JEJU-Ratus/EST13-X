@@ -8,7 +8,16 @@ import {
   List,
   ListItemText,
 } from "@mui/material";
-import { collection, addDoc, serverTimestamp, query, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  getDocs,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useEffect, useState } from "react";
 
@@ -17,20 +26,23 @@ function Home() {
   const [comments, setComments] = useState([]);
 
   // useEffect로 데이터 조회 결과를 comments 에 할당.
-  console.log(comments);
-  const getComments = async () => {
-    const q = query(collection(db, "comments"));
 
-    const querySnapshot = await getDocs(q);
-    const commentsArray = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setComments(commentsArray);
+  const getComments = async () => {
+    const q = query(collection(db, "comments"), orderBy("date", "desc"), limit(5));
+
+    onSnapshot(q, querySnapshot => {
+      const commentsArray = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setComments(commentsArray);
+    });
   };
+
   useEffect(() => {
     getComments();
   }, []);
+  console.log(comments);
   const handleChange = e => {
     setComment(e.target.value);
   };
@@ -43,6 +55,7 @@ function Home() {
       });
       console.log("다음 글이 추가되었습니다.: ", docRef.id);
       setComment("");
+      // getComments();
     } catch (e) {
       console.error("글 추가 시 에러가 발생했습니다.", e);
     }
@@ -76,7 +89,9 @@ function Home() {
           <ListItem alignItems="flex-start" key={item.id} divider>
             <ListItemText
               primary={item.comment} // 제목
-              secondary={item.date.toDate().toLocaleString()} // 출력할 내용
+              secondary={
+                item.date?.toDate() ? item.date.toDate().toLocaleString() : "작성시간 없음"
+              } // 출력할 내용
             />
           </ListItem>
         ))}
