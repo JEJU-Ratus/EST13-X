@@ -8,8 +8,10 @@ import {
   limit,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, storageService } from "../firebase";
+import { ref, uploadString } from "firebase/storage";
 import { useEffect, useState, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Comment from "../components/Comment";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
@@ -18,6 +20,10 @@ function Home({ userId }) {
   const [comments, setComments] = useState([]);
   const [attachment, setAttachment] = useState(null);
   const fileInputRef = useRef(null);
+
+  const storage = storageService; // storage 초기화
+  const storageRef = ref(storage); // 참조 초기화
+
   // useEffect로 데이터 조회 결과를 comments 에 할당.
 
   const getComments = async () => {
@@ -41,18 +47,22 @@ function Home({ userId }) {
   };
   const onSubmit = async e => {
     e.preventDefault();
-    try {
-      const docRef = await addDoc(collection(db, "comments"), {
-        comment,
-        date: serverTimestamp(),
-        uid: userId,
-      });
-      console.log("다음 글이 추가되었습니다.: ", docRef.id);
-      setComment("");
-      // getComments();
-    } catch (e) {
-      console.error("글 추가 시 에러가 발생했습니다.", e);
-    }
+    const storageRef = ref(storage, `${userId}/${uuidv4()}`);
+    uploadString(storageRef, attachment, "data_url").then(snapshot => {
+      console.log("파일 업로드 완료");
+    });
+    // try {
+    //   const docRef = await addDoc(collection(db, "comments"), {
+    //     comment,
+    //     date: serverTimestamp(),
+    //     uid: userId,
+    //   });
+    //   console.log("다음 글이 추가되었습니다.: ", docRef.id);
+    //   setComment("");
+    //   // getComments();
+    // } catch (e) {
+    //   console.error("글 추가 시 에러가 발생했습니다.", e);
+    // }
   };
   const onFileChange = e => {
     const file = e.target.files[0];

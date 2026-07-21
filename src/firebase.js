@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth"; // 인증관련
 import { getFirestore } from "firebase/firestore"; // 데이터 추가를 위한 초기화
-
+import { getStorage } from "firebase/storage"; // 파일 저장소 세팅
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_APIKEY,
   authDomain: import.meta.env.VITE_AUTHDOMAIN,
@@ -17,3 +17,4 @@ const app = initializeApp(firebaseConfig);
 
 export const authService = getAuth(app);
 export const db = getFirestore(app);
+export const storageService = getStorage(app);
