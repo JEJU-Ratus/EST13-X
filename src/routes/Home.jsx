@@ -151,18 +151,3 @@ function Home({ userId }) {
 }
 
 export default Home;
-
-/*
-
-    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      <ListItem alignItems="flex-start">
-        <ListItemText
-          primary="Brunch this weekend?" // 제목
-          secondary="" // 출력할 내용
-            
-        />
-      </ListItem>
-      <Divider variant="inset" component="li" />
-  </List>
-
-*/
