@@ -51,7 +51,7 @@ function Profile() {
 
       <List sx={{ width: "100%" }}>
         {comments.map(item => (
-          <Comment item={item} key={item.id} isShown={userId === item.uid} />
+          <Comment item={item} key={item.id} isShown={true} />
         ))}
       </List>
     </>
